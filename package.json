@@ -1,0 +1,51 @@
+{
+  "name": "@bedrock/web-pouch-edv",
+  "version": "8.2.1-0",
+  "type": "module",
+  "description": "PouchDB EDV Storage",
+  "exports": "./lib/index.js",
+  "files": [
+    "lib/**/*.js"
+  ],
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@digitalbazaar/ecdsa-multikey": "^1.8.0",
+    "@digitalbazaar/edv-client": "^16.1.0",
+    "base58-universal": "^2.0.0",
+    "pouchdb": "^9.0.0",
+    "pouchdb-adapter-indexeddb": "^9.0.0",
+    "pouchdb-find": "^9.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-config-digitalbazaar": "^5.2.0",
+    "eslint-plugin-jsdoc": "^51.4.1",
+    "eslint-plugin-unicorn": "^56.0.1",
+    "pouchdb-debug": "^7.2.1"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/digitalbazaar/bedrock-web-pouch-edv"
+  },
+  "keywords": [
+    "bedrock",
+    "pouchdb",
+    "edv",
+    "encrypted data vault",
+    "web"
+  ],
+  "author": {
+    "name": "Digital Bazaar, Inc.",
+    "email": "support@digitalbazaar.com",
+    "url": "https://digitalbazaar.com"
+  },
+  "bugs": {
+    "url": "https://github.com/digitalbazaar/bedrock-pouch-edv/issues"
+  },
+  "homepage": "https://github.com/digitalbazaar/bedrock-pouch-edv"
+}
