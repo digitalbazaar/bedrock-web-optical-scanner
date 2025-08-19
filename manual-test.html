@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optical Scanner Manual Test</title>
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .status {
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-weight: 500;
+        }
+        
+        .status.loading {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .status.success {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .test-section {
+            margin: 24px 0;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        
+        .test-section h3 {
+            margin: 0 0 16px 0;
+            color: #333;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin: 16px 0;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn.primary {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .btn.primary:hover {
+            background: #1565c0;
+        }
+        
+        .btn.secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .btn.secondary:hover {
+            background: #d0d0d0;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .file-input {
+            margin: 16px 0;
+        }
+        
+        .results {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 16px;
+            margin: 16px 0;
+            font-family: Monaco, 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .video-container {
+            margin: 16px 0;
+            text-align: center;
+        }
+        
+        video {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .format-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+        }
+        
+        .format-tag {
+            padding: 4px 8px;
+            background: #e3f2fd;
+            color: #1565c0;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .debug-info {
+            background: #f1f3f4;
+            border-radius: 6px;
+            padding: 12px;
+            margin: 16px 0;
+            font-size: 12px;
+            color: #5f6368;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Optical Scanner Manual Test</h1>
+            <p>Testing the bedrock-web-optical-scanner library</p>
+        </div>
+        
+        <div id="status" class="status loading">
+            📦 Loading library...
+        </div>
+        
+        <!-- Camera Scanning Test -->
+        <div class="test-section">
+            <h3>📹 Camera Scanning</h3>
+            <p>Test scanning with device camera</p>
+            
+            <div class="controls">
+                <button id="startCamera" class="btn primary">Start Camera</button>
+                <button id="stopCamera" class="btn secondary" disabled>Stop Camera</button>
+                <button id="scanCamera" class="btn primary" disabled>Scan Current Frame</button>
+            </div>
+            
+            <div class="video-container">
+                <video id="video" width="400" height="300" style="display: none;"></video>
+            </div>
+            
+            <div id="cameraResults" class="results" style="display: none;"></div>
+        </div>
+        
+        <!-- File Upload Test -->
+        <div class="test-section">
+            <h3>📁 File Upload Scanning</h3>
+            <p>Test scanning from uploaded images</p>
+            
+            <div class="file-input">
+                <input type="file" id="fileInput" accept="image/*" />
+                <button id="scanFile" class="btn primary">Scan File</button>
+            </div>
+            
+            <div id="fileResults" class="results" style="display: none;"></div>
+        </div>
+        
+        <!-- Formats Information -->
+        <div class="test-section">
+            <h3>🏷️ Supported Formats</h3>
+            <div id="formatsList" class="format-list">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Debug Information -->
+        <div class="debug-info">
+            <strong>Debug Info:</strong>
+            <div id="debugInfo">Initializing...</div>
+        </div>
+    </div>
+
+
+    <script src="./dist/bundle.js"></script>
+</body>
+</html>
