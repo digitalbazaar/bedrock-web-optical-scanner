@@ -19,7 +19,8 @@
     "build": "webpack"
   },
   "dependencies": {
-    "barcode-detector": "^3.0.5"
+    "barcode-detector": "^3.0.5",
+    "dynamsoft-javascript-barcode": "=9.6.1"
   },
   "devDependencies": {
     "@bedrock/webpack": "^11.2.2",
@@ -44,7 +45,9 @@
     "barcode",
     "qr",
     "pdf417",
-    "mrz"
+    "mrz",
+    "dynamsoft",
+    "driver-license"
   ],
   "author": {
     "name": "Digital Bazaar, Inc.",
