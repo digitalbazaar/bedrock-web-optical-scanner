@@ -270,13 +270,55 @@
             margin: 0 0 12px 0;
             color: #2e7d32;
         }
+
+        .mrz-validation {
+          background: #fff8e1;
+          border: 2px solid #ffcc02;
+          border-radius: 8px;
+          padding: 20px;
+          margin: 16px 0;
+        }
+
+        .mrz-validation h3 {
+            margin-top: 0;
+            color: #f57f17;
+        }
+
+        .validation-summary {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .validation-score {
+            font-weight: bold;
+            color: #2e7d32;
+            padding: 2px 6px;
+            background: #e8f5e8;
+            border-radius: 4px;
+        }
+
+        .mrz-validation details {
+            margin-top: 15px;
+        }
+
+        .mrz-validation summary {
+            cursor: pointer;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .mrz-validation summary:hover {
+            color: #1976d2;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🔍 Enhanced Optical Scanner Test</h1>
-            <p>Testing all plugins: QR Code, PDF417, and Enhanced PDF417 with Dynamsoft</p>
+            <p>Testing all plugins: QR Code, PDF417, Enhanced PDF417, and MRZ with Dynamsoft</p>
         </div>
         
         <div id="status" class="status loading">
@@ -287,7 +329,7 @@
         <div class="test-section">
             <h3>🔑 Dynamsoft License Configuration</h3>
             <div class="license-section">
-                <p><strong>Optional:</strong> Enter your Dynamsoft license key to test enhanced PDF417 scanning</p>
+                <p><strong>Optional:</strong> Enter your Dynamsoft license key to test enhanced PDF417 or MRZ formats.</p>
                 <input type="text" id="licenseInput" class="license-input" 
                        placeholder="Paste your Dynamsoft license key here (optional)">
                 <div class="controls">
@@ -331,7 +373,7 @@
             
             <div id="cameraResults" class="results">Camera results will appear here...</div>
         </div>
-        
+
         <!-- File Upload Tests -->
         <div class="test-section">
             <h3>📁 File Upload Tests</h3>
@@ -350,7 +392,15 @@
             
             <div id="fileResults" class="results">File scan results will appear here...</div>
         </div>
-        
+
+        <!-- MRZ Validation Display -->
+        <div class="test-section">
+            <div id="mrzValidation" class="mrz-validation" style="display: none;">
+                <h3>🔍 MRZ Validation Analysis</h3>
+                <div id="mrzValidationContent"></div>
+            </div>
+        </div>
+
         <!-- System Information -->
         <div class="test-section">
             <h3>🏷️ System Information</h3>
@@ -442,7 +492,8 @@
                 const plugins = [
                     lib.qrCodePlugin,
                     lib.pdf417Plugin,
-                    lib.enhancedPdf417Plugin
+                    lib.enhancedPdf417Plugin,
+                    lib.mrzPlugin
                 ].filter(plugin => !!plugin);
 
                 scanner = new lib.OpticalScanner({ plugins });
@@ -543,11 +594,45 @@
                 return;
             }
 
+            // Handle license requirements for enhanced formats
+            const license = licenseInput.value.trim();
+            
+            // Handle MRZ license requirement
+            if (scanOptions.formats.includes('mrz')) {
+                if (!license) {
+                    // Remove MRZ from formats and warn user
+                    scanOptions.formats = scanOptions.formats.filter(f => f !== 'mrz');
+                    console.warn('MRZ format excluded - no license key provided');
+                    description += ' (MRZ excluded - no license)';
+                } else {
+                    // Include MRZ with license in pluginOptions
+                    scanOptions.pluginOptions = {
+                        ...scanOptions.pluginOptions,
+                        mrz: {
+                            licenseKey: license,
+                            mrzMode: 'element'
+                        }
+                    };
+                }
+            }
+
+            // Handle enhanced PDF417 license
+            if (scanOptions.formats.includes('pdf417_enhanced') && license) {
+                scanOptions.pluginOptions = {
+                    ...scanOptions.pluginOptions,
+                    pdf417_enhanced: {
+                        license: license,
+                        useDynamsoft: true,
+                        parseDL: true,
+                    }
+                };
+            }
+
             isScanning = true;
             scanStartTime = Date.now();
             
             setStatus(`🔍 ${description}...`, 'scanning');
-            showResults(`🔍 ${description}...\nHold barcode steady in yellow target area`, cameraResults);
+            showResults(`🔍 ${description}...\nHold document steady in yellow target area`, cameraResults);
             
             // Show progress
             progressEl.style.display = 'block';
@@ -573,8 +658,8 @@
             scanTimeout = setTimeout(() => {
                 stopScanning();
                 const elapsed = ((Date.now() - scanStartTime) / 1000).toFixed(1);
-                showResults(`⏰ Scan timeout after ${elapsed}s\n\nTips:\n• Ensure good lighting\n• Hold 6-12 inches from camera\n• Keep barcode in yellow target area\n• Try different angles`, cameraResults);
-                setStatus('⏰ Scan timeout - try repositioning barcode', 'error');
+                showResults(`⏰ Scan timeout after ${elapsed}s\n\nTips:\n• Ensure good lighting\n• Hold 6-12 inches from camera\n• Keep document in yellow target area\n• Try different angles`, cameraResults);
+                setStatus('⏰ Scan timeout - try repositioning document', 'error');
             }, timeoutMs);
             
             // Perform the scan
@@ -586,10 +671,44 @@
                     const result = results[0];
                     let output = `🎉 SUCCESS! (${elapsed}s)\n\n`;
                     output += `📱 Format: ${result.format?.toUpperCase() || 'UNKNOWN'}\n`;
-                    output += `🚀 Engine: ${scanOptions.license ? 'Dynamsoft Enhanced' : 'Browser Standard'}\n\n`;
+                    output += `🚀 Engine: ${license ? 'Dynamsoft Enhanced' : 'Browser Standard'}\n\n`;
                     
-                    // Parse result data
-                    if (result.driverLicense) {
+                    // Handle different result types
+                    if (result.format === 'mrz' && result.data) {
+                        // MRZ Result Display
+                        const mrzData = result.data;
+                        output += `🆔 MRZ DOCUMENT DATA:\n`;
+                        
+                        if (mrzData.firstName || mrzData.lastName) {
+                            output += `Name: ${mrzData.firstName} ${mrzData.lastName}\n`;
+                        }
+                        if (mrzData.documentNumber) {
+                            output += `Document #: ${mrzData.documentNumber}\n`;
+                        }
+                        if (mrzData.dateOfBirth) {
+                            output += `DOB: ${mrzData.dateOfBirth}\n`;
+                        }
+                        if (mrzData.dateOfExpiry) {
+                            output += `Expires: ${mrzData.dateOfExpiry}\n`;
+                        }
+                        if (mrzData.nationality) {
+                            output += `Nationality: ${mrzData.nationality}\n`;
+                        }
+                        if (mrzData.issuingState) {
+                            output += `Issuing State: ${mrzData.issuingState}\n`;
+                        }
+                        
+                        // Show validation summary if available
+                        if (mrzData.validation) {
+                            const val = mrzData.validation;
+                            output += `\n✅ VALIDATION:\n`;
+                            output += `Status: ${val.overallStatus.toUpperCase()}\n`;
+                            output += `Completeness: ${val.statistics.overallCompleteness}%\n`;
+                            output += `Valid Fields: ${val.statistics.validFields}/${val.statistics.totalFields}\n`;
+                        }
+                        
+                    } else if (result.driverLicense) {
+                        // Driver License Data (Enhanced PDF417)
                         const dl = result.driverLicense;
                         output += `👤 DRIVER LICENSE DATA:\n`;
                         if (dl.DAC?.value && dl.DCS?.value) {
@@ -605,13 +724,14 @@
                             output += `Sex: ${dl.DBC.value}\n`;
                         }
                     } else {
+                        // Standard barcode content
                         output += `📄 CONTENT:\n${result.text || JSON.stringify(result, null, 2)}`;
                     }
                     
                     showResults(output, cameraResults);
                     setStatus('✅ Scan successful!', 'success');
                 } else {
-                    showResults(`❌ No results after ${elapsed}s\n\nTry repositioning the barcode or improving lighting`, cameraResults);
+                    showResults(`❌ No results after ${elapsed}s\n\nTry repositioning the document or improving lighting`, cameraResults);
                     setStatus('❌ No results found', 'error');
                 }
             }).catch(error => {
@@ -664,11 +784,34 @@
                 mode: 'first'
             };
             
-            // Add license for enhanced scanning
-            if (license && formats.includes('pdf417')) {
-                options.license = license;
-                options.parseDL = true;
-                options.useDynamsoft = true;
+            // Handle MRZ license requirement
+            if (formats.includes('mrz')) {
+                if (!license) {
+                    // Remove MRZ from formats and warn user
+                    options.formats = formats.filter(f => f !== 'mrz');
+                    console.warn('MRZ format excluded from file scan - no license key provided');
+                } else {
+                    // Include MRZ with license in pluginOptions
+                    options.pluginOptions = {
+                        ...options.pluginOptions,
+                        mrz: {
+                            licenseKey: license,
+                            mrzMode: 'file'
+                        }
+                    };
+                }
+            }
+            
+            // Add license for enhanced PDF417 scanning
+            if (license && (formats.includes('pdf417_enhanced') || formats.includes('pdf417'))) {
+                options.pluginOptions = {
+                    ...options.pluginOptions,
+                    pdf417_enhanced: {
+                        license: license,
+                        parseDL: true,
+                        useDynamsoft: true
+                    }
+                };
             }
 
             scanner.scan(file, options).then(results => {
@@ -678,7 +821,42 @@
                     output += `📱 Format: ${result.format?.toUpperCase() || 'UNKNOWN'}\n`;
                     output += `📁 File: ${file.name}\n\n`;
                     
-                    if (result.driverLicense) {
+                    // Handle different result types
+                    if (result.format === 'mrz' && result.data) {
+                        // MRZ Result Display
+                        const mrzData = result.data;
+                        output += `🆔 MRZ DOCUMENT DATA:\n`;
+                        
+                        if (mrzData.firstName || mrzData.lastName) {
+                            output += `Name: ${mrzData.firstName} ${mrzData.lastName}\n`;
+                        }
+                        if (mrzData.documentNumber) {
+                            output += `Document #: ${mrzData.documentNumber}\n`;
+                        }
+                        if (mrzData.dateOfBirth) {
+                            output += `DOB: ${mrzData.dateOfBirth}\n`;
+                        }
+                        if (mrzData.dateOfExpiry) {
+                            output += `Expires: ${mrzData.dateOfExpiry}\n`;
+                        }
+                        if (mrzData.nationality) {
+                            output += `Nationality: ${mrzData.nationality}\n`;
+                        }
+                        if (mrzData.issuingState) {
+                            output += `Issuing State: ${mrzData.issuingState}\n`;
+                        }
+                        
+                        // Show validation summary if available
+                        if (mrzData.validation) {
+                            const val = mrzData.validation;
+                            output += `\n✅ VALIDATION:\n`;
+                            output += `Status: ${val.overallStatus.toUpperCase()}\n`;
+                            output += `Completeness: ${val.statistics.overallCompleteness}%\n`;
+                            output += `Valid Fields: ${val.statistics.validFields}/${val.statistics.totalFields}\n`;
+                        }
+                        
+                    } else if (result.driverLicense) {
+                        // Driver License Data (Enhanced PDF417)
                         const dl = result.driverLicense;
                         output += `👤 DRIVER LICENSE DATA:\n`;
                         Object.keys(dl).forEach(key => {
@@ -687,6 +865,7 @@
                             }
                         });
                     } else {
+                        // Standard barcode content
                         output += `📄 CONTENT:\n${result.text || JSON.stringify(result, null, 2)}`;
                     }
                     
@@ -752,8 +931,20 @@
         document.getElementById('scanAny').addEventListener('click', () => {
             console.log('🔍 EVENT: Scan Any button clicked');
             const formats = scanner.getSupportedFormats();
+            const license = licenseInput.value.trim();
+            
             console.log('🔍 EVENT: Auto-detect formats:', formats);
-            performScan({ formats, mode: 'first' }, 10000, 'Auto-detecting any format');
+            
+            // Check if MRZ will be included
+            if (formats.includes('mrz')) {
+                if (license) {
+                    console.log('🔍 EVENT: MRZ included with license');
+                } else {
+                    console.log('🔍 EVENT: MRZ will be excluded (no license)');
+                }
+            }
+            
+            performScan({ formats, mode: 'first' }, 12000, 'Auto-detecting any format');
         });
 
         document.getElementById('scanQR').addEventListener('click', () => {
