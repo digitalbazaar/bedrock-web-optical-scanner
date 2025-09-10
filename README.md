@@ -12,7 +12,7 @@ Framework-agnostic optical scanner library for Bedrock apps. Supports QR code, P
 
 ## Features
 
-- **Multi-format scanning**: Built-in support for QR codes and PDF417 barcodes
+- **Multi-format scanning**: Built-in support for QR codes, PDF417 barcodes, and MRZ format
 - **Flexible scanning modes**: First match, all formats, or exhaustive scanning
 - **Plugin architecture**: Easily extend with custom format scanners
 - **Camera utilities**: Helper functions for camera access and video handling
@@ -29,6 +29,7 @@ lib/
   plugins/
     index.js                 // Plugin registration
     enhancedpdf417Plugin.js  // Enhanced PDF417 plugin using Dynamsoft
+    mrzPlugin.js             // mrz plugin using Dynamsoft
     pdf417Plugin.js          // PDF417 plugin
     qrCodePlugin.js          // QR code plugin
   utils/
@@ -155,6 +156,12 @@ The scan function should:
 
 - Manual browser testing: Use `manual-test.html` to test scanning via camera or file upload.
 - Automated tests: Located in the `test/` directory, using sample images and helpers.
+
+## Known Issues
+
+- Core MRZ scanning functionality is working with successful passport/ID
+document extraction. Known issues with UI display in manual-test.html formatting
+and plugin configuration are to be addressed in follow-up updates/commits.
 
 ---
 
