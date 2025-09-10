@@ -1,6 +1,6 @@
 # bedrock-web-optical-scanner ChangeLog
 
-## 1.0.0 - 2025-08-18
+## 1.0.0 - 2025-09-10
 
 ### Added
 
@@ -11,6 +11,8 @@
 - Built-in plugins for:
   - QR Code scanning (`qrCodePlugin`)
   - PDF417 barcode scanning (`pdf417Plugin`)
+  - PDF417 Enhanced barcode scanning using Dynamsoft (`enhancedPdf417Plugin`)
+  - MRZ scanning using Dynamsoft (`mrzPlugin`)
 - Camera utilities for:
   - Getting default camera constraints
   - Starting camera streams
