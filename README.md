@@ -163,6 +163,7 @@ The scan function should:
 document extraction. Known issues with UI display in manual-test.html formatting
 and plugin configuration are to be addressed in follow-up updates/commits.
 - Add more test case scenarios
+- `examples/vue-scanner-demo` directory code need massive work. Remove old code.
 
 ---
 
