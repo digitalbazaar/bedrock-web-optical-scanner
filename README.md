@@ -162,6 +162,7 @@ The scan function should:
 - Core MRZ scanning functionality is working with successful passport/ID
 document extraction. Known issues with UI display in manual-test.html formatting
 and plugin configuration are to be addressed in follow-up updates/commits.
+- Add more test case scenarios
 
 ---
 
