@@ -3,15 +3,11 @@
   "version": "1.0.0-0",
   "type": "module",
   "description": "Framework-agnostic optical scanner library for bedrock apps",
-  "main": "./index.js",
-  "module": "./index.js",
+  "main": "./lib/index.js",
   "exports": {
-    ".": "./index.js",
-    "./components/": "./components/"
+    ".": "./lib/index.js"
   },
   "files": [
-    "index.js",
-    "components/**",
     "lib/**",
     "package.json",
     "README.md"
