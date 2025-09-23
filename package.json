@@ -10,7 +10,11 @@
     "./components/": "./components/"
   },
   "files": [
-    "lib/**/*.js"
+    "index.js",
+    "components/**",
+    "lib/**",
+    "package.json",
+    "README.md"
   ],
   "scripts": {
     "lint": "eslint .",
