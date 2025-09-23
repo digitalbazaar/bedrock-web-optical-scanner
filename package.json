@@ -6,10 +6,8 @@
   "main": "./index.js",
   "module": "./index.js",
   "exports": {
-    ".": {
-      "import": "./index.js",
-      "require": "./index.js"
-    }
+    ".": "./index.js",
+    "./components/": "./components/"
   },
   "files": [
     "lib/**/*.js"
