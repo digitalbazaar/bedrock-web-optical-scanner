@@ -22,22 +22,6 @@ yarn-error.log*
 test/node_modules/
 test/package-lock.json
 
-# Example/demo subproject
-examples/vue-scanner-demo/node_modules/
-examples/vue-scanner-demo/dist/
-examples/vue-scanner-demo/coverage/
-examples/vue-scanner-demo/reports/
-examples/vue-scanner-demo/.DS_Store
-examples/vue-scanner-demo/.idea/
-examples/vue-scanner-demo/.vscode/
-examples/vue-scanner-demo/*.log
-examples/vue-scanner-demo/npm-debug.log*
-examples/vue-scanner-demo/yarn-debug.log*
-examples/vue-scanner-demo/yarn-error.log*
-examples/vue-scanner-demo/*~
-examples/vue-scanner-demo/*.sw[nop]
-examples/vue-scanner-demo/package-lock.json
-
 # Misc
 .nyc_output
 .project
