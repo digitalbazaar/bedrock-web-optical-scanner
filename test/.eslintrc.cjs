@@ -1,6 +1,10 @@
 module.exports = {
   env: {
-    node: true
+    mocha: true,
+    browser: true
+  },
+  globals: {
+    assertNoError: true,
+    should: true
   }
 };
-
