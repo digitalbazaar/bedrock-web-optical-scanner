@@ -111,6 +111,11 @@ const results = await scanner.scan(image, {
 - Loads the Webpack bundle (`dist/bundle.js`).
 - Provides controls for camera and file scanning, displays results, supported formats, and debug info.
 
+## Architecture Principle
+
+- The web module handles all scanning complexities, while framework modules (Vue, React, etc.) focus purely 
+on UI concerns and user interactions.
+
 ## Plugin Architecture
 
 - Plugins are registered with the scanner to support different barcode formats.
@@ -120,6 +125,30 @@ const results = await scanner.scan(image, {
 - How to use/consume plugin architecture flow will look like:
 
 Vue (UI Only) -> CameraScanner (Business Logic) -> OpticalScanner (Core Engine) -> Plugins (Format-Specific)
+
+## Core Classes
+
+`lib/opitcal-scanner.js`
+
+- Core scanning engine - handles the actual scanning process
+- Plugin architecture - manages format-specific plugins
+- Async API - provides async scanning with different resolution modes:
+  - 'first' - resolves on first successful scan
+  - 'all' - resolves when all formats found
+  - 'exhaustive' - lets all plugins complete their attempts
+- Format-agnostic - doesn't know about specific barcode types
+- Source-flexible - can scan from image, video, canvas, or ImageData
+
+`lib/camera-scanner.js`
+
+- High-level API for framework integration
+- Business logic orchestration - combines camera + scanning
+- Configuration management - handles scan types ('mrz', 'barcode', 'auto')
+- Camera lifecycle - manages camera start/stop
+- Plugin configuration - automatically configures plugins based on scan type
+- State management - tracks torch, zoom, camera state
+- Error handling - provides user-friendly error messages
+- File scanning - handles uploaded files vs camera input
 
 ## Plugin Development
 
