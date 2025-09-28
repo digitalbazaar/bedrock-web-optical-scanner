@@ -1,5 +1,5 @@
 {
-  "name": "bedrock-web-pouch-edv-test",
+  "name": "bedrock-web-optical-scanner-test",
   "version": "0.0.1-0",
   "type": "module",
   "private": true,
@@ -14,7 +14,6 @@
     "@bedrock/core": "^6.0.1",
     "@bedrock/karma": "^6.1.0",
     "@bedrock/test": "^8.0.5",
-    "@bedrock/web-pouch-edv": "file:..",
     "events": "^3.3.0"
   }
 }
