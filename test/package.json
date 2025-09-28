@@ -12,8 +12,13 @@
   },
   "dependencies": {
     "@bedrock/core": "^6.0.1",
-    "@bedrock/karma": "^6.1.0",
+    "@bedrock/express": "^8.0.0",
+    "@bedrock/karma": "^7.0.1",
     "@bedrock/test": "^8.0.5",
-    "events": "^3.3.0"
+    "@bedrock/views": "^11.0.0",
+    "@bedrock/web": "^3.0.0",
+    "@bedrock/webpack": "^9.0.0",
+    "@bedrock/web-optical-scanner": "file:..",
+    "barcode-detector": "^3.0.5"
   }
 }
