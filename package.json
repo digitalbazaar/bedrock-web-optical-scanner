@@ -1,6 +1,6 @@
 {
   "name": "@bedrock/web-optical-scanner",
-  "version": "0.0.1-0",
+  "version": "1.0.0",
   "type": "module",
   "description": "Framework-agnostic optical scanner library for bedrock apps",
   "main": "./index.js",
