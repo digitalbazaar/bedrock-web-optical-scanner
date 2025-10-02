@@ -12,7 +12,8 @@
     }
   },
   "files": [
-    "lib/**/*.js"
+    "lib/**/*.js",
+    "index.js"
   ],
   "scripts": {
     "lint": "eslint .",
