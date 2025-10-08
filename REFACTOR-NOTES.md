@@ -38,9 +38,47 @@ Implement dual-path approach:
 
 - `lib/optical-scanner.js` - Main refactor
 
-## Files Backed Up
+## Implementation Status
 
-- `BACKUP-scanContinuous-before-refactor.js` - Original implementation
+### &#9989; Completed Steps
+
+1 **Backup Created**
+
+- Original implementation preserved as `scanContinuous_BACKUP`
+- Notes added inline for easy reference
+
+2 **Frame-Accurate Method Added**
+
+- `_scanContinuousFrameCallback()` implemented
+- Uses `requestVideoFrameCallback()` for optimal performance
+- 30-60 fps scanning rate
+
+3 **Polling Fallback Added**
+
+- `_scanContinuousPolling()` implemented
+- Maintains compatibility with non-video sources
+- 0.4 fps scanning rate
+
+4 **Public Method Refactored**
+
+- `scanContinuous()` now routes by source type
+- Intelligent delegation to appropriate implementation
+- Warning added for non-optimal usage
+
+5 **Architecture Documentation Added**
+
+- Comprehensive block comment explaining design decisions
+- Performance characteristics documented
+- Historical context preserved
+- Routing logic visualized
+
+### Result
+
+- &#9989; Frame-accurate scanning restored (150x performance improvement)
+- &#9989; Backward compatible with all source types
+- &#9989; Clean separation of concerns
+- &#9989; Well-documented architecture
+- &#9989; Original behavior preserved for reference
 
 ## Impact Analysis
 
