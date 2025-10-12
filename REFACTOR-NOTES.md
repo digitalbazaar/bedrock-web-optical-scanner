@@ -16,9 +16,8 @@ Restore frame-accurate scanning performance that was lost during architectural r
 
 Current polling-based implementation scans every 2.5 seconds (~0.4 fps), causing:
 
-- Slow barcode detection (150x slower than original)
+- Slow barcode detection (30x-40x slower than original)
 - Poor user experience (must hold barcode steady for 2.5+ seconds)
-- Missed frames (skips 75-150 frames between scans at 30-60fps)
 
 ## Solution
 
@@ -30,7 +29,7 @@ Implement dual-path approach:
 ## Original Behavior (bedrock-vue-barcode-scanner)
 
 - Used `requestVideoFrameCallback()` for frame-accurate scanning
-- Scanned every video frame (30-60 fps)
+- Scanned every video frame (12-16 fps)
 - Near-instant barcode detection
 - Located in: `bedrock-vue-barcode-scanner/lib/barcodes.js`
 
@@ -51,7 +50,7 @@ Implement dual-path approach:
 
 - `_scanContinuousFrameCallback()` implemented
 - Uses `requestVideoFrameCallback()` for optimal performance
-- 30-60 fps scanning rate
+- 12-16 fps scanning rate
 
 3 **Polling Fallback Added**
 
@@ -89,7 +88,7 @@ Implement dual-path approach:
 
 ## Testing Required
 
-- [ ] Barcode video scanning (QR + PDF417) - Should be 150x faster
+- [ ] Barcode video scanning (QR + PDF417) - Should be 30x-40x faster
 - [ ] MRZ camera mode - Should be unchanged
 - [ ] MRZ file/element scanning - Should be unchanged
 - [ ] File uploads - Should be unchanged
@@ -100,5 +99,5 @@ Implement dual-path approach:
 ## Performance Metrics
 
 - **Before**: ~0.4 scans/second (2500ms between attempts)
-- **After**: 30-60 scans/second (frame-accurate)
-- **Improvement**: 75-150x faster detection
+- **After**: 12-16 scans/second (frame-accurate)
+- **Improvement**: 30x-40x faster detection
