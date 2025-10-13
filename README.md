@@ -45,7 +45,7 @@ The library automatically selects the optimal strategy based on source type:
 
 ```javascript
 // Automatic routing - no configuration needed
-if (source instanceof HTMLVideoElement) {
+if(source instanceof HTMLVideoElement) {
   // Fast path: Frame-accurate scanning
   // Scans every video frame (12-16 fps)
   await _scanContinuousFrameCallback(video, options);
@@ -236,7 +236,7 @@ The `OpticalScanner` class implements two strategies for continuous scanning, au
 video.requestVideoFrameCallback(() => {
   // Scan current video frame
   const results = await this.scan(video, options);
-  if (results.length > 0) {
+  if(results.length > 0) {
     return results; // Found barcode - done!
   }
   // No results - try next frame
@@ -267,9 +267,9 @@ video.requestVideoFrameCallback(() => {
 
 ```javascript
 // Uses setTimeout with 2.5 second delays
-while (!aborted) {
+while(!aborted) {
   const results = await this.scan(source, options);
-  if (results.length > 0) {
+  if(results.length > 0) {
     return results; // Found barcode - done!
   }
   // No results - wait before next attempt
@@ -291,13 +291,13 @@ The public `scanContinuous()` method automatically routes to the best strategy:
 ```javascript
 async scanContinuous(source, options) {
   // Check source type
-  if (source instanceof HTMLVideoElement) {
+  if(source instanceof HTMLVideoElement) {
     // Fast path: 12-16 fps frame-accurate
-    console.log('Using frame-callback (optimal)');
+    console.log('bedrock-web-optical-scanner: sing frame-callback (optimal)');
     return this._scanContinuousFrameCallback(source, options);
   }
   // Fallback: 0.4 fps polling
-  console.warn('Using polling fallback (slower)');
+  console.warn('bedrock-web-optical-scanner: Using polling fallback (slower)');
   return this._scanContinuousPolling(source, options);
 }
 ```
