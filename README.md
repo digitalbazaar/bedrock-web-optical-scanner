@@ -72,14 +72,14 @@ Comparison of polling vs frame-accurate approaches:
 - Frame-accurate scanning synchronizes with video frames for minimal latency
 - Polling fallback ensures universal compatibility with all source types
 - Automatic routing based on source type (no developer configuration needed)
-- See `lib/optical-scanner.js` lines 170-380 for implementation details
+- See `lib/opticalScanner.js` lines 170-380 for implementation details
 
 ## Directory & File Structure
 
 ```
 lib/
-  camera-scanner.js // Camera Scanner class
-  optical-scanner.js // Optical scanner class
+  cameraScanner.js // Camera Scanner class
+  opticalScanner.js // Optical scanner class
   plugins/
     index.js // Plugin registration
     enhancedpdf417Plugin.js // Enhanced PDF417 plugin using Dynamsoft
@@ -138,7 +138,7 @@ const results = await scanner.scan(image, {
 
 ## Main Components
 
-### `lib/camera-scanner.js`
+### `lib/cameraScanner.js`
 
 - Exports the `CameraScanner` class - a high-level camera scanner that provides a simple API for framework integration.
 - Handles all scanning complexities internally by delegating scan operations to OpticalScanner class - frameworks just handle UI.
@@ -147,7 +147,7 @@ const results = await scanner.scan(image, {
 - Manages camera lifecycle, plugin configuration, and provides built-in timeout handling.
 - Designed for easy integration with Vue, React, or any JavaScript framework.
 
-### `lib/optical-scanner.js`
+### `lib/opticalScanner.js`
 
 - Exports the `OpticalScanner` class - core scanning engine.
 - Handles scanning from images/video/files using registered plugins.
@@ -200,7 +200,7 @@ Vue (UI Only) -> CameraScanner (Business Logic) -> OpticalScanner (Core Engine) 
 - Format-agnostic - doesn't know about specific barcode types
 - Source-flexible - can scan from image, video, canvas, or ImageData
 
-`lib/camera-scanner.js`
+`lib/cameraScanner.js`
 
 - High-level API for framework integration
 - Business logic orchestration - combines camera + scanning
