@@ -47,15 +47,15 @@ let allExist = true;
 expectedImages.forEach(imagePath => {
   const fullPath = path.join(__dirname, imagePath);
   if(!fs.existsSync(fullPath)) {
-    console.log(`❌ Missing: ${imagePath}`);
+    console.log(`Missing: ${imagePath}`);
     allExist = false;
   } else {
-    console.log(`✅ Found: ${imagePath}`);
+    console.log(`Found: ${imagePath}`);
   }
 });
 
 if(allExist) {
-  console.log('\n🎉 All test images present! You can run tests.');
+  console.log('\n All test images present! You can run tests.');
 } else {
-  console.log('\n📥 Copy missing images and run tests again.');
+  console.log('\n Copy missing images and run tests again.');
 }

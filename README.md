@@ -12,18 +12,153 @@ allows you to easily add support for new formats and scanning modes.
 ## Features
 
 - **Multi-format scanning**: Built-in support for QR codes, PDF417 barcodes, and MRZ format
+- **High performance**: 12-16 fps frame-accurate scanning with video sources (30x-40x faster than polling)
+- **Intelligent fallback**: Automatic polling for non-video sources (universal compatibility)
 - **Flexible scanning modes**: First match, all formats, or exhaustive scanning
 - **Plugin architecture**: Easily extend with custom format scanners
 - **Camera utilities**: Helper functions for camera access and video handling
+- **Enhanced error context**: Rich error messages with frame counts, scan method, and abort reason
 - **Framework agnostic**: Works with any JavaScript framework or vanilla JS
 - **Web Worker ready**: Architecture prepared for future threading support
+
+## Performance
+
+### Frame-Accurate Scanning
+
+The scanner uses `requestVideoFrameCallback()` for optimal performance when scanning from video elements:
+
+**Measured Performance:**
+
+- **Scan rate:** 12-16 frame per second (fps).
+- **Time per scan:** 62-83 milliseconds.
+- **Video frame rate:** 60 fps (camera/video source).
+- **Coverage:** Processes ~20-27% of available video frames.
+- **30x-40x faster** than polling-based approaches.
+- **Near-instant** barcode detection for responsive UX.
+
+**Note:** Above performance measurements were obtained from:
+
+- **Camera & Device:** Native camera, Macbook Pro M1 (arm64), 16 GB RAM.
+- **Browser:** Google Chrome (latest version - 141.0.7390.77).
+
+**Why not 60 fps?**
+
+The scan rate is lower than video frame rate because:
+
+1. **Processing takes time** - Each scan takes 62-83ms to complete (barcode detection is CPU-intensive).
+2. **JavaScript is single-threaded** - Scanning blocks until complete.
+3. **This is normal and expected** - Detection still feels instant to users.
+
+### Scanning Strategies
+
+The library automatically selects the optimal strategy based on source type:
+
+| Source Type | Method | Performance | Use Case |
+|-------------|--------|-------------|----------|
+| Video (HTMLVideoElement) | `requestVideoFrameCallback()` | 12-16 fps | Real-time camera scanning (optimal) |
+| Other sources | `setTimeout()` polling | 0.4 fps | Fallback for compatibility |
+
+### Performance Metrics
+
+Comparison of polling vs frame-accurate approaches:
+
+| Metric | Polling | Frame-Accurate | Improvement |
+|--------|---------------|----------------------|-------------|
+| Scan Rate | 0.4 fps | 12-16 fps | **30x-40x faster** |
+| Detection Time | 2.5-7.5s | < 0.5s | **15x faster** |
+| Frame Interval | 2500ms | 62-83ms | **97% reduction** |
+| User Experience | Laggy, frustrating | Instant, smooth | **Significantly improved** |
+
+Note: Math behind frame interval for frame-accurate scan is 12 fps -> 83ms per frame (1000/12) = 83ms and
+16 fps -> 62ms per frame (1000/16) = 62.5ms.
+
+**Want implementation details?** See [Continuous Scanning Architecture](#continuous-scanning-architecture)
+
+## Continuous Scanning Architecture
+
+### Overview
+
+The `OpticalScanner` class implements two strategies for continuous scanning, automatically selecting the optimal approach based on source type.
+
+### Strategy 1: Frame-Accurate Scanning (Optimal)
+
+**Method:** `_scanContinuousFrameCallback()` originally logic from (`bedrock-vue-barcode-scanner` library):
+
+**When used:** Automatically selected for `HTMLVideoElement` sources
+
+**How it works:**
+
+```javascript
+// Uses requestVideoFrameCallback for frame synchronization
+video.requestVideoFrameCallback(() => {
+  // Scan current video frame
+  const results = await this.scan(video, options);
+  if(results.length > 0) {
+    return results; // Found barcode - done!
+  }
+  // No results - try next frame
+  video.requestVideoFrameCallback(scanFrame);
+});
+```
+
+**Advantages:**
+
+- Scans every video frame (no missed opportunities)
+- No artificial delays (maximum responsiveness)
+- Efficient resource usage (only scans when new frames available)
+- Best possible user experience
+
+### Strategy 2: Polling-Based Scanning (Fallback)
+
+**Method:** `_scanContinuousPolling()`
+
+**When used:** Automatically selected for non-video sources (compatibility)
+
+**How it works:**
+
+```javascript
+// Uses setTimeout with 2.5 second delays
+while(!aborted) {
+  const results = await this.scan(source, options);
+  if(results.length > 0) {
+    return results; // Found barcode - done!
+  }
+  // No results - wait before next attempt
+  await new Promise(resolve => setTimeout(resolve, 2500));
+}
+```
+
+**When you'd see this:**
+
+- Scanning from canvas elements (rare)
+- Scanning from ImageData (rare)
+- Fallback for unsupported source types
+
+**Warning:** If developer/user see "Polling fallback" in console, your source isn't optimal for performance.
+
+**Automatic Routing Logic**
+The public `scanContinuous()` method automatically routes to the best strategy:
+
+```javascript
+async scanContinuous(source, options) {
+  // Check source type
+  if(source instanceof HTMLVideoElement) {
+    // Fast path: 12-16 fps frame-accurate
+    console.log('bedrock-web-optical-scanner: Using frame-callback (optimal)');
+    return this._scanContinuousFrameCallback(source, options);
+  }
+  // Fallback: 0.4 fps polling
+  console.warn('bedrock-web-optical-scanner: Using polling fallback (slower)');
+  return this._scanContinuousPolling(source, options);
+}
+```
 
 ## Directory & File Structure
 
 ```
 lib/
-  camera-scanner.js // Camera Scanner class
-  optical-scanner.js // Optical scanner class
+  cameraScanner.js // Camera Scanner class
+  opticalScanner.js // Optical scanner class
   plugins/
     index.js // Plugin registration
     enhancedpdf417Plugin.js // Enhanced PDF417 plugin using Dynamsoft
@@ -60,7 +195,7 @@ The scanner supports three different resolution strategies:
 
 ### 'first' Mode (Default)
 
-Resolves as soon as any plugin successfully scans the requested formats. This is the suitable for most use cases where you want quick results.
+Resolves as soon as any plugin successfully scans the requested formats. This is suitable for most use cases where you want quick results.
 
 ### 'all' Mode  
 
@@ -75,14 +210,14 @@ succeeded. This is the most thorough option but potentially slower.
 ```javascript
 // Example usage
 const results = await scanner.scan(image, {
-  formats: ['qr_code', 'pdf417', 'pdf417_enhanced'],
+  formats: ['qr_code', 'pdf417', 'pdf417_enhanced', 'mrz'],
   mode: 'first' // or 'all' or 'exhaustive'
 });
 ```
 
 ## Main Components
 
-### `lib/camera-scanner.js`
+### `lib/cameraScanner.js`
 
 - Exports the `CameraScanner` class - a high-level camera scanner that provides a simple API for framework integration.
 - Handles all scanning complexities internally by delegating scan operations to OpticalScanner class - frameworks just handle UI.
@@ -91,10 +226,15 @@ const results = await scanner.scan(image, {
 - Manages camera lifecycle, plugin configuration, and provides built-in timeout handling.
 - Designed for easy integration with Vue, React, or any JavaScript framework.
 
-### `lib/optical-scanner.js`
+### `lib/opticalScanner.js`
 
-- Exports the `OpticalScanner` class.
-- Handles scanning images/files for barcodes using registered plugins.
+- Exports the `OpticalScanner` class - core scanning engine.
+- Handles scanning from images/video/files using registered plugins.
+- Implements two continuous scanning strategies:
+  - **Frame-accurate:** 12-16 fps using `requestVideoFrameCallback()` (optimal)
+  - **Polling fallback:** 0.4 fps using `setTimeout()` (compatibility)
+- Automatically routes to best strategy based on source type.
+- Provides rich error context (frame counts, scan method, abort reason).
 - Accepts plugins for different barcode formats.
 
 ### `lib/plugins/`
@@ -113,8 +253,7 @@ const results = await scanner.scan(image, {
 
 ## Architecture Principle
 
-- The web module handles all scanning complexities, while framework modules (Vue, React, etc.) focus purely 
-on UI concerns and user interactions.
+- The web module handles all scanning complexities, while framework modules (Vue, React, etc.) focus purely on UI concerns and user interactions.
 
 ## Plugin Architecture
 
@@ -128,7 +267,7 @@ Vue (UI Only) -> CameraScanner (Business Logic) -> OpticalScanner (Core Engine) 
 
 ## Core Classes
 
-`lib/opitcal-scanner.js`
+`lib/opticalScanner.js`
 
 - Core scanning engine - handles the actual scanning process
 - Plugin architecture - manages format-specific plugins
@@ -139,7 +278,7 @@ Vue (UI Only) -> CameraScanner (Business Logic) -> OpticalScanner (Core Engine) 
 - Format-agnostic - doesn't know about specific barcode types
 - Source-flexible - can scan from image, video, canvas, or ImageData
 
-`lib/camera-scanner.js`
+`lib/cameraScanner.js`
 
 - High-level API for framework integration
 - Business logic orchestration - combines camera + scanning
